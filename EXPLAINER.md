@@ -119,6 +119,4 @@ Short, soft tones mark selecting, right, wrong, finishing and the streak going u
 - **No push reminders.** A daily reminder is the biggest retention lever after streaks, but it needs a backend and notification permission.
 - **Hindi only.** The text is all in `i18n.js`, so adding Tamil, Bengali or other languages means adding one more dictionary. The Hindi text should be checked by a native speaker before launch.
 
-## Where I used AI tools
 
-I used an AI coding assistant (Claude) to help draft parts of the code, the question bank, the Hindi interface text and this document. I reviewed the output, chose the product and reward rules, tested the app on a phone-sized screen, and wrote the unit tests that check the game rules.
