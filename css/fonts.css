@@ -1,0 +1,9 @@
+/* Self-hosted Geist (Vercel), Latin subset, SIL Open Font License. Cached by the service worker.
+   Hindi falls back to the phone's own Noto Sans Devanagari, so it costs nothing extra. */
+@font-face {
+  font-family: "Geist";
+  src: url("../fonts/geist.woff2") format("woff2");
+  font-weight: 100 900;
+  font-style: normal;
+  font-display: swap;
+}
