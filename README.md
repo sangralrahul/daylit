@@ -2,32 +2,39 @@
 
 <img src="icons/icon.svg" width="72" alt="Daylit logo">
 
-Five short English questions a day, plus three extra tasks from easy to hard. Players keep a streak, earn points, level up, collect badges and climb a weekly league.
+**A one-minute English habit.** Five short questions a day, from easy to hard, plus three extra tasks. Players keep a streak, earn points worth rupees, level up, collect badges and climb a weekly league.
 
 Built for people on modest Android phones and mobile data who read English as a second language.
 
-- **Zero dependencies, no build step.** Plain HTML, CSS and JavaScript.
-- **About 70 KB on first load** (about 35 KB of code gzipped plus a 29 KB font, no images). Works offline after the first visit (service worker), so daily play costs no data.
-- **English and Hindi interface.** The questions stay in English, because practising English is the point.
+| | |
+|---|---|
+| **Live app** | https://daylit5.vercel.app (best on a phone) |
+| **Walkthrough video** (3 min) | https://drive.google.com/file/d/1mwe1qkdR-4KL5hPPvGjFpsvUDz5jbuJg/view?usp=sharing |
+| **Explainer** | [EXPLAINER.md](EXPLAINER.md): what I built, the choices I made, what I left out |
 
 ---
 
-## Run it locally
+## Quick start
 
-You need any static file server. Pick one:
+You need **Git** and **Node.js 18 or newer**. Nothing else: there are no dependencies to install and no build step.
 
 ```bash
-git clone <this-repo-url> daylit
+git clone https://github.com/sangralrahul/daylit.git
 cd daylit
-
-# Option A: Python (already on most machines)
-python3 -m http.server 5173
-
-# Option B: Node 18+
 npm start
 ```
 
-Open **http://localhost:5173**. You can also open `index.html` directly from disk. Everything works except offline mode, because service workers need `http(s)`.
+Then open **http://localhost:5173** in your browser.
+
+To stop the server, press `Ctrl + C`.
+
+### What you should see
+
+1. A short launch animation, then **"A one-minute English habit."** with a **Get started** button.
+2. Four quick steps: language, your name, and how it works.
+3. The **home screen**, with three rings, today's five questions and a **Start today's five** button.
+
+On a laptop, the app appears inside a phone frame next to a short description. To see the phone layout full screen, open your browser's developer tools and turn on device mode (`Ctrl + Shift + M` in Chrome), or open the link on your phone.
 
 ### Run the tests
 
@@ -35,68 +42,81 @@ Open **http://localhost:5173**. You can also open `index.html` directly from dis
 npm test
 ```
 
-This uses Node's built-in test runner, so there is nothing to install. The tests cover the daily question set, streaks, streak savers, scoring, levels and the league.
+15 tests, using Node's built-in test runner. They cover the daily question set and its easy-to-hard order, the extra tasks, scoring, streaks and streak savers, levels, the league, word of the day, the wallet, and rupee and payout-detail checks.
+
+Expected output ends with:
+
+```
+# tests 15
+# pass 15
+# fail 0
+```
+
+---
+
+## Other ways to run it
+
+Any static file server works, because the app is plain HTML, CSS and JavaScript.
+
+| You have | Command | Then open |
+|---|---|---|
+| Node.js 18+ | `npm start` | http://localhost:5173 |
+| Node.js, different port | `npm start -- 8080` | http://localhost:8080 |
+| Python 3 (macOS / Linux) | `python3 -m http.server 5173` | http://localhost:5173 |
+| Python 3 (Windows) | `py -m http.server 5173` | http://localhost:5173 |
+| Nothing installed | Double-click `index.html` | (opens directly) |
+
+Opening `index.html` directly works for everything except offline mode. Service workers need a real `http://` address.
 
 ### Try other days without waiting
 
-Add `?date=YYYY-MM-DD` to the URL to pretend it is another day:
+Daily apps are hard to test in one sitting. Add `?date=YYYY-MM-DD` to the address to pretend it's another day:
 
 ```
 http://localhost:5173/?date=2026-10-13
+http://localhost:5173/?date=2026-10-14
 ```
 
-Play one day, then open the next date to see the streak grow. Skip a date to see a streak saver used or a streak broken. To start over, go to **Me → Delete my progress**.
+- Play one date, then the next date: the streak grows.
+- Skip a date: a streak saver is used, or the streak resets.
+- To start over, go to **Me → Delete my progress** (tap twice to confirm).
+
+### Troubleshooting
+
+| Problem | Fix |
+|---|---|
+| `npm` or `node` is not recognised | Install Node.js 18+ from https://nodejs.org, then open a new terminal. |
+| "Port 5173 is busy" | Run `npm start -- 8080` and open http://localhost:8080. |
+| You still see an old version after changing files | Hard refresh (`Ctrl + Shift + R`). The service worker caches files, so bump `VERSION` in `sw.js` when you change them. |
+| The **Listen** buttons don't appear | The device has no text-to-speech voice. On Android, install "Speech Services by Google". |
+| The app shows another person's progress | Progress is saved in the browser. Use **Me → Delete my progress**, or a private window. |
 
 ---
 
 ## Deploy (free)
 
-It is a static folder, so any static host works.
+It's a static folder, so any static host works.
 
 | Host | Steps |
 |---|---|
-| **Netlify** | Drag the folder onto app.netlify.com/drop |
-| **Vercel** | `npx vercel` in the folder, accept the defaults |
-| **GitHub Pages** | Push the repo → Settings → Pages → Deploy from branch `main`, folder `/` |
+| **Vercel** (used for the live app) | Import the repo at https://vercel.com/new. Framework preset: **Other**. Leave the build command empty. `vercel.json` sets caching headers. |
+| **Netlify** | Drag the folder onto https://app.netlify.com/drop |
+| **GitHub Pages** | Repo → Settings → Pages → Deploy from branch `main`, folder `/` |
 | **Cloudflare Pages** | Connect the repo, leave the build command empty, output directory `/` |
-
-When you change any file, bump `VERSION` in `sw.js` so returning players get the update.
 
 ---
 
-## Project structure
+## Features
 
-```
-daylit/
-├── index.html            App shell, plus a desktop-only showcase panel next to a phone frame.
-├── css/styles.css        All styles. Design tokens at the top, light and dark themes.
-├── css/fonts.css         @font-face rule for the self-hosted font.
-├── fonts/                Geist, Latin subset only (SIL OFL).
-├── js/
-│   ├── questions.js      Question bank (70 questions, 7 categories).
-│   ├── i18n.js           All interface text, English + Hindi.
-│   ├── words.js          Word-of-the-day list (word, syllables, meaning, Hindi, example).
-│   ├── logic.js          Pure game rules: dates, seeded picking, scoring, streaks, levels, league.
-│   └── app.js            UI: screens, events, localStorage.
-├── sw.js                 Service worker for offline use.
-├── manifest.webmanifest  Lets players install it to the home screen.
-├── icons/                App icons (SVG + PNG).
-├── tests/logic.test.js   Unit tests for logic.js.
-├── EXPLAINER.md          What I built, the choices I made, and what I left out.
-└── package.json          `npm start` and `npm test` only. No dependencies.
-```
-
-`logic.js` has no DOM code, so the same file runs in the browser and in the tests.
-
-### Adding questions
-
-Add an object to `js/questions.js`. **Write the correct answer first.** Options are shuffled at runtime.
-
-```js
-{ c: 'meaning', q: 'What does “calm” mean?', o: ['Quiet and peaceful', 'Very angry', 'Very fast', 'Very cold'], e: 'A calm sea has no big waves.' }
-```
-
-Categories: `meaning`, `opposite`, `gap`, `spelling`, `odd`, `math`, `synonym`. Each day uses 5 of the 7.
+- **Today's five:** five questions, easy → easy → medium → medium → hard. Everyone gets the same set each day. Tap an answer, then **Check**. 20-second timer with a speed bonus. Every answer shows a one-line explanation.
+- **Three extra tasks a day:** Word quiz (easy), Listen and choose (medium), and Hard challenge (hard, unlocks after today's five).
+- **Listen:** speaker buttons read questions and explanations aloud with the phone's own voice (offline, no data).
+- **Word of the day:** syllables, meaning, Hindi meaning and an example sentence.
+- **Rewards:** points, streaks with a multiplier, streak savers, levels, 9 badges and a weekly league.
+- **Wallet:** balance in points and rupees, a dated history of every entry, and a shop to buy streak savers.
+- **Get paid (demo):** add a UPI ID or bank account (format checked), withdraw from ₹50, see Processing → Paid. Simulated: no money moves, and details stay on the device.
+- **English or Hindi interface**, light and dark mode, sound effects with an on/off switch, and installable to the home screen.
+- **Fair by design:** points are earned once per day, and closing or reloading the page during a question counts it as missed, so a hard question can't be skipped.
 
 ---
 
@@ -104,14 +124,71 @@ Categories: `meaning`, `opposite`, `gap`, `spelling`, `odd`, `math`, `synonym`. 
 
 | Reward | Rule |
 |---|---|
-| Points | Easy 10, medium 15, hard 20 per correct answer. Speed bonus: +5 under 5 s, +3 under 10 s. +20 for 5/5. |
-| Streak | +1 for each day you finish the set. Bonus: ×1.25 from 3 days, ×1.5 from 7, ×1.75 from 14, ×2 from 30. |
-| Streak savers | You earn one every 7 streak days (keep up to 2). A saver covers a missed day. |
+| Points | Easy 10, medium 15, hard 20 per correct answer. Today's five also gives a speed bonus (+5 under 5 s, +3 under 10 s) and +20 for 5/5. |
+| Streak | +1 for each day you finish today's five. Bonus: ×1.25 from 3 days, ×1.5 from 7, ×1.75 from 14, ×2 from 30. |
+| Streak savers | Earn one every 7 streak days, or buy one for 200 points (hold up to 2). A saver covers a missed day. |
 | Levels | Level 2 at 100 points, level 3 at 300, level 4 at 600, level 5 at 1,000 (`50 × n × (n−1)`). |
-| Badges | 9 badges for first day, 5/5, streaks, speed, points, saver use and level 5. |
-| Tasks | Today's five (easy → hard) plus Word quiz, Listen and choose, and Hard challenge, each once a day. |
-| Rupees (demo) | 10 points = ₹1. Withdraw from ₹50 to a UPI ID or bank account. Simulated: no money moves, details stay on the device. |
-| Wallet | Balance = lifetime points − points spent. A streak saver costs 200 in the shop. Level and league always use lifetime points. |
-| League | Weekly ranking, Monday to Sunday. In this demo the other players are simulated and labelled as such. |
+| Rupees (demo) | 10 points = ₹1. Minimum payout ₹50. |
+| Wallet | Balance = lifetime points − points spent. Level and league always use lifetime points, so spending never costs you rank. |
+| League | Weekly, Monday to Sunday. In this demo the other players are simulated, and the app says so. |
 
-Points are earned **once per day**. Practice mode exists for learning and earns nothing.
+Practice mode is for learning and earns nothing.
+
+---
+
+## Project structure
+
+```
+daylit/
+├── index.html            App shell, plus a desktop-only intro panel next to a phone frame
+├── css/
+│   ├── styles.css        All styles. Design tokens at the top; light and dark themes
+│   └── fonts.css         @font-face for the self-hosted font
+├── fonts/geist.woff2     Geist, Latin subset only (SIL Open Font License)
+├── js/
+│   ├── questions.js      Question bank: 102 questions in 11 categories
+│   ├── words.js          Word-of-the-day list
+│   ├── i18n.js           All interface text, English + Hindi
+│   ├── logic.js          Pure game rules (no DOM): dates, seeded question sets,
+│   │                     difficulty, scoring, streaks, levels, league, wallet, payouts
+│   └── app.js            UI: screens, events, saving to localStorage
+├── sw.js                 Service worker (offline support)
+├── manifest.webmanifest  Install-to-home-screen settings
+├── icons/                App icons
+├── scripts/serve.js      Tiny local server used by `npm start` (no dependencies)
+├── tests/logic.test.js   Unit tests for logic.js
+├── vercel.json           Caching headers for Vercel
+├── EXPLAINER.md          What I built, the choices I made, what I left out
+└── VIDEO_SCRIPT.md       Narration of the walkthrough video, with timestamps
+```
+
+`logic.js` has no DOM code, so the same file runs in the browser and in the tests. A future server could reuse it to score answers, which a real-money version would need.
+
+### Adding questions
+
+Add an object to `js/questions.js`. **Write the correct answer first**; options are shuffled at runtime.
+
+```js
+{ c: 'meaning', q: 'What does “calm” mean?', o: ['Quiet and peaceful', 'Very angry', 'Very fast', 'Very cold'], e: 'A calm sea has no big waves.' }
+```
+
+| Difficulty | Categories |
+|---|---|
+| Easy | `odd`, `math`, `synonym`, `opposite` |
+| Medium | `meaning`, `gap`, `spelling` |
+| Hard | `idiom`, `phrasal`, `grammar`, `vocab` |
+
+Run `npm test` afterwards; a test checks that every question has four different options.
+
+---
+
+## Tech
+
+- Plain HTML, CSS and JavaScript (ES2017+). No framework, no build step, no runtime dependencies.
+- About 70 KB on first load, then offline via the service worker.
+- Progress is stored in `localStorage` on the device. There is no backend in this version; see "What I left out" in [EXPLAINER.md](EXPLAINER.md).
+- Tested on a 360 × 760 phone viewport in light and dark mode, and on desktop Chrome.
+
+## License
+
+MIT
